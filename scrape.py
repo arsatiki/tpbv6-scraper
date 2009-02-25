@@ -1,6 +1,7 @@
 from BeautifulSoup import BeautifulSoup
 import urllib2
 import re
+import sqlite
 
 def clean(dotted_string):
     return int(re.sub(r'\D', '', dotted_string))
@@ -14,7 +15,17 @@ def stdout_fmt(seeds, leechers, torrents):
    data = (seeds, leechers, seeds+leechers, torrents)
    return "%d seeds, %d leechers (%d total) and %d torrents" % data
 
-# TODO SQL
+# TODO: 
+# * create tpbstats
+# * optparse, 
+# * cronjob
+
+def sql_write(ip4, ip6):
+    conn = sqlite.connect('filename')
+    c = conn.cursor()
+    line = "insert into tpbstats values (datetime('now'), ?, ?, ?, ?, ?, ?)"
+    c.execute(line, ip4 + ip6)
+    conn.commit()
 
 def main():
     page = urllib2.urlopen("http://thepiratebay.org/")
