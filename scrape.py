@@ -22,7 +22,7 @@ def stdout_fmt(seeds, leechers, torrents):
 
 def sql_write(connection, ip4, ip6):
     line = """insert into tpbstats(seeds4, leechers4, torrents4, 
-        seeds6, leechers6, torrents6) values (?, ?, ?, ?, ?, ?)"""
+              seeds6, leechers6, torrents6) values (%s, %s, %s, %s, %s, %s)"""
     connection.cursor().execute(line, ip4 + ip6)
     connection.commit()
 
