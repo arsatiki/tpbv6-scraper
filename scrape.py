@@ -2,7 +2,8 @@ from BeautifulSoup import BeautifulSoup
 import urllib2
 import re
 import sys
-import MySQLdb
+
+import my
 
 def clean(dotted_string):
     return int(re.sub(r'\D', '', dotted_string))
@@ -33,9 +34,9 @@ def main():
     ip4, ip6 = map(read_data, ip_rows)
     if len(sys.argv) > 1 and sys.argv[1].strip() == '--sql':
         pass
-        # connection = my_stuff()
-        # sql_write(connection, ip4, ip6)
-        # connection.close()
+        connection = my.create_connection()
+        sql_write(connection, ip4, ip6)
+        connection.close()
     else:
         print "IPv4:", stdout_fmt(*ip4)
         print "IPv6:", stdout_fmt(*ip6)
