@@ -2,6 +2,7 @@ from BeautifulSoup import BeautifulSoup
 import urllib2
 import re
 import sqlite
+import sys
 
 def clean(dotted_string):
     return int(re.sub(r'\D', '', dotted_string))
@@ -16,16 +17,16 @@ def stdout_fmt(seeds, leechers, torrents):
    return "%d seeds, %d leechers (%d total) and %d torrents" % data
 
 # TODO: 
-# * create tpbstats
-# * optparse, 
 # * cronjob
 
-def sql_write(ip4, ip6):
-    conn = sqlite.connect('filename')
+def sql_write(db, ip4, ip6):
+    conn = sqlite.connect(db)
     c = conn.cursor()
-    line = "insert into tpbstats values (datetime('now'), ?, ?, ?, ?, ?, ?)"
+    line = """insert into tpbstats(seeds4, leechers4, torrents4, 
+        seeds6, leechers6, torrents6) values (?, ?, ?, ?, ?, ?)"""
     c.execute(line, ip4 + ip6)
     conn.commit()
+    conn.close()
 
 def main():
     page = urllib2.urlopen("http://thepiratebay.org/")
@@ -33,8 +34,12 @@ def main():
     footer_rows = soup.find('p', id='footer').findAll(text=True)
     ip_rows = footer_rows[1], footer_rows[2]
     ip4, ip6 = map(read_data, ip_rows)
-    print "IPv4:", stdout_fmt(*ip4)
-    print "IPv6:", stdout_fmt(*ip6)
+    if len(sys.argv) == 1:
+	print "IPv4:", stdout_fmt(*ip4)
+    	print "IPv6:", stdout_fmt(*ip6)
+    else:
+        print sys.argv[1]
+        #sql_write(sys.argv[1], ip4, ip6)
 
 if __name__ == '__main__':
     main()
