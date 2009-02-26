@@ -1,8 +1,8 @@
 from BeautifulSoup import BeautifulSoup
 import urllib2
 import re
-import sqlite
 import sys
+import MySQLdb
 
 def clean(dotted_string):
     return int(re.sub(r'\D', '', dotted_string))
@@ -19,14 +19,11 @@ def stdout_fmt(seeds, leechers, torrents):
 # TODO: 
 # * cronjob
 
-def sql_write(db, ip4, ip6):
-    conn = sqlite.connect(db)
-    c = conn.cursor()
+def sql_write(connection, ip4, ip6):
     line = """insert into tpbstats(seeds4, leechers4, torrents4, 
         seeds6, leechers6, torrents6) values (?, ?, ?, ?, ?, ?)"""
-    c.execute(line, ip4 + ip6)
-    conn.commit()
-    conn.close()
+    connection.cursor().execute(line, ip4 + ip6)
+    connection.commit()
 
 def main():
     page = urllib2.urlopen("http://thepiratebay.org/")
@@ -34,12 +31,15 @@ def main():
     footer_rows = soup.find('p', id='footer').findAll(text=True)
     ip_rows = footer_rows[1], footer_rows[2]
     ip4, ip6 = map(read_data, ip_rows)
-    if len(sys.argv) == 1:
-	print "IPv4:", stdout_fmt(*ip4)
-    	print "IPv6:", stdout_fmt(*ip6)
+    if len(sys.argv) > 1 and sys.argv[1].strip() == '--sql':
+        pass
+        # connection = my_stuff()
+        # sql_write(connection, ip4, ip6)
+        # connection.close()
     else:
-        print sys.argv[1]
-        #sql_write(sys.argv[1], ip4, ip6)
+        print "IPv4:", stdout_fmt(*ip4)
+        print "IPv6:", stdout_fmt(*ip6)
+
 
 if __name__ == '__main__':
     main()
