@@ -27,7 +27,10 @@ def sql_write(connection, ip4, ip6):
     connection.commit()
 
 def main():
-    page = urllib2.urlopen("http://thepiratebay.org/")
+    try:
+        page = urllib2.urlopen("http://thepiratebay.org/")
+    except urllib2.URLError:
+        return
     soup = BeautifulSoup(page)
     footer_rows = soup.find('p', id='footer').findAll(text=True)
     ip_rows = footer_rows[1], footer_rows[2]
